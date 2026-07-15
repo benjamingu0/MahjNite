@@ -8,8 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    let tiles: [Tile] = Array(generateWall().prefix(13))
+    
     var body: some View {
-        TileView(tile: .suit(suit: .bamboos, rank: 5))
+        VStack {
+            Spacer()
+            Text("Your Hand")
+                .font(.headline)
+            HandView(tiles: tiles)
+            Spacer()
+        }
     }
 }
 
