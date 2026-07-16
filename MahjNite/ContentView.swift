@@ -8,15 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
-    let tiles: [Tile] = Array(generateWall().prefix(13))
+    @State private var hand: [Tile] = generateWall().prefix(12).map { $0 }
+    @State private var discards: [Tile] = []
     
     var body: some View {
         VStack {
             Spacer()
+            DiscardPileView(tiles: discards)
+            Spacer()
             Text("Your Hand")
                 .font(.headline)
-            HandView(tiles: tiles)
-            Spacer()
+            HandView(tiles: hand, onTileTapped: { index in
+                let tile = hand.remove(at: index)
+                discards.append(tile)
+            })
+            .padding(.bottom)
         }
     }
 }
