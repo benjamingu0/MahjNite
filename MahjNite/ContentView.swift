@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var hand: [Tile]
     @State private var wall: [Tile]
     @State private var discards: [Tile] = []
+    @State private var showWinAlert = false
     
     init() {
         let fullWall = generateWall()
@@ -25,14 +26,20 @@ struct ContentView: View {
             Spacer()
             Text("Your Hand (\(wall.count) tiles left in wall)")
                 .font(.headline)
-            HandView(tiles: hand, onTileTapped: {index in
+            HandView(tiles: hand, onTileTapped: { index in
                 let tile = hand.remove(at: index)
                 discards.append(tile)
                 if !wall.isEmpty {
                     hand.append(wall.removeFirst())
+                    if isWinningHand(hand) {
+                        showWinAlert = true
+                    }
                 }
             })
             .padding(.bottom)
+        }
+        .alert("You Win! 🎉", isPresented: $showWinAlert) {
+            Button("OK", role: .cancel) { }
         }
     }
 }
