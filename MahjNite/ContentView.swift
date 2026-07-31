@@ -15,7 +15,7 @@ struct ContentView: View {
     
     init() {
         let fullWall = generateWall()
-        _hand = State(initialValue: Array(fullWall.prefix(13)))
+        _hand = State(initialValue: Array(fullWall.prefix(13)).sorted { $0.sortValue < $1.sortValue })
         _wall = State(initialValue: Array(fullWall.dropFirst(13)))
     }
     
@@ -31,6 +31,7 @@ struct ContentView: View {
                 discards.append(tile)
                 if !wall.isEmpty {
                     hand.append(wall.removeFirst())
+                    hand.sort { $0.sortValue < $1.sortValue }
                     if isWinningHand(hand) {
                         showWinAlert = true
                     }
