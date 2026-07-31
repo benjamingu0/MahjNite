@@ -7,6 +7,7 @@ Roadmap:\
 [&ensp;&nbsp;] Tile UI\
 [X] Hand display\
 [&ensp;&nbsp;] Game logic\
+&emsp;&emsp;&emsp; Drawing, discarding, and sorting of cards complete ✓\
 [&ensp;&nbsp;] AI opponents\
 [&ensp;&nbsp;] Multiplayer features\
 [&ensp;&nbsp;] Game release!
