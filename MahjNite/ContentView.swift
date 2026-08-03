@@ -8,38 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var hand: [Tile]
-    @State private var wall: [Tile]
-    @State private var discards: [Tile] = []
-    @State private var showWinAlert = false
-    
-    init() {
-        let fullWall = generateWall()
-        _hand = State(initialValue: Array(fullWall.prefix(13)).sorted { $0.sortValue < $1.sortValue })
-        _wall = State(initialValue: Array(fullWall.dropFirst(13)))
-    }
+    @StateObject private var game = GameState()
     
     var body: some View {
         VStack {
             Spacer()
-            DiscardPileView(tiles: discards)
+            DiscardPileView(tiles: game.discards)
             Spacer()
-            Text("Your Hand (\(wall.count) tiles left in wall)")
+            Text("Your Hand (\(game.wall.count) tiles left in wall)")
                 .font(.headline)
-            HandView(tiles: hand, onTileTapped: { index in
-                let tile = hand.remove(at: index)
-                discards.append(tile)
-                if !wall.isEmpty {
-                    hand.append(wall.removeFirst())
-                    hand.sort { $0.sortValue < $1.sortValue }
-                    if isWinningHand(hand) {
-                        showWinAlert = true
-                    }
-                }
+            HandView(tiles: game.hands[0], onTileTapped: { index in
+                game.humanDiscard(at: index)
             })
             .padding(.bottom)
         }
-        .alert("You Win! 🎉", isPresented: $showWinAlert) {
+        .alert("You Win! 🎉", isPresented: $game.showWinAlert) {
             Button("OK", role: .cancel) { }
         }
     }
