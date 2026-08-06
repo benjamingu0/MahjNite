@@ -9,12 +9,15 @@ import Foundation
 import Combine
 
 class GameState: ObservableObject {
-    @Published var hands: [[Tile]] = [[], [], [], []]  // index 0 = you, 1-3 = bots
+    @Published var hands: [[Tile]] = [[], [], [], []]
+    @Published var exposedSets: [[[Tile]]] = [[], [], [], []]
     @Published var wall: [Tile] = []
     @Published var discards: [Tile] = []
     @Published var currentPlayer: Int = 0
     @Published var showWinAlert = false
+
     @Published var pendingPungTile: Tile? = nil
+    private var pendingPungDiscarder: Int? = nil
 
     init() {
         let fullWall = generateWall()
@@ -41,6 +44,39 @@ class GameState: ObservableObject {
             }
         }
 
+        advanceTurn()
+    }
+
+    func confirmPung() {
+        guard let tile = pendingPungTile, let discarder = pendingPungDiscarder else { return }
+
+        var removed = 0
+        hands[0].removeAll { t in
+            if removed < 2 && TileKey(t) == TileKey(tile) {
+                removed += 1
+                return true
+            }
+            return false
+        }
+
+        if let lastIndex = discards.lastIndex(where: { TileKey($0) == TileKey(tile) }) {
+            discards.remove(at: lastIndex)
+        }
+
+        exposedSets[0].append([tile, tile, tile])
+
+        pendingPungTile = nil
+        pendingPungDiscarder = nil
+
+        currentPlayer = 0
+    }
+
+    func declinePung() {
+        let discarder = pendingPungDiscarder
+        pendingPungTile = nil
+        pendingPungDiscarder = nil
+
+        currentPlayer = discarder ?? currentPlayer
         advanceTurn()
     }
 
@@ -71,7 +107,7 @@ class GameState: ObservableObject {
 
         if canCallPung(tile: tile, player: 0) {
             pendingPungTile = tile
-            print("Pung available on \(tile)!")
+            pendingPungDiscarder = currentPlayer
         } else {
             advanceTurn()
         }

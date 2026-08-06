@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var game = GameState()
-    
+
     var body: some View {
         VStack {
             Spacer()
@@ -22,8 +22,22 @@ struct ContentView: View {
             })
             .padding(.bottom)
         }
-        .alert("You Win! 🎉", isPresented: $game.showWinAlert) {
+        .alert("You Win!", isPresented: $game.showWinAlert) {
             Button("OK", role: .cancel) { }
+        }
+        .alert(
+            "Call Pung?",
+            isPresented: Binding(
+                get: { game.pendingPungTile != nil },
+                set: { if !$0 { game.pendingPungTile = nil } }
+            )
+        ) {
+            Button("Pung!") {
+                game.confirmPung()
+            }
+            Button("Pass", role: .cancel) {
+                game.declinePung()
+            }
         }
     }
 }
