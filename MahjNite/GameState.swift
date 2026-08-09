@@ -18,6 +18,9 @@ class GameState: ObservableObject {
 
     @Published var pendingPungTile: Tile? = nil
     private var pendingPungDiscarder: Int? = nil
+    
+    @Published var pendingChowTile: Tile? = nil
+    private var pendingChowDiscarder: Int? = nil
 
     init() {
         let fullWall = generateWall()
@@ -79,6 +82,36 @@ class GameState: ObservableObject {
         currentPlayer = discarder ?? currentPlayer
         advanceTurn()
     }
+    
+    func confirmChow() {
+        guard let tile = pendingChowTile, let needed = chowTiles(for: tile) else { return }
+
+        for n in needed {
+            if let idx = hands[0].firstIndex(where: { TileKey($0) == TileKey(n) }) {
+                hands[0].remove(at: idx)
+            }
+        }
+
+        if let lastIndex = discards.lastIndex(where: { TileKey($0) == TileKey(tile) }) {
+            discards.remove(at: lastIndex)
+        }
+
+        exposedSets[0].append([tile] + needed)
+
+        pendingChowTile = nil
+        pendingChowDiscarder = nil
+
+        currentPlayer = 0
+    }
+
+    func declineChow() {
+        let discarder = pendingChowDiscarder
+        pendingChowTile = nil
+        pendingChowDiscarder = nil
+
+        currentPlayer = discarder ?? currentPlayer
+        advanceTurn()
+    }
 
     private func advanceTurn() {
         currentPlayer = (currentPlayer + 1) % 4
@@ -108,6 +141,9 @@ class GameState: ObservableObject {
         if canCallPung(tile: tile, player: 0) {
             pendingPungTile = tile
             pendingPungDiscarder = currentPlayer
+        } else if canCallChow(tile: tile, from: currentPlayer) {
+            pendingChowTile = tile
+            pendingChowDiscarder = currentPlayer
         } else {
             advanceTurn()
         }
@@ -116,5 +152,42 @@ class GameState: ObservableObject {
     func canCallPung(tile: Tile, player: Int) -> Bool {
         let matchingCount = hands[player].filter { TileKey($0) == TileKey(tile) }.count
         return matchingCount >= 2
+    }
+    
+    func canCallChow(tile: Tile, from discarder: Int) -> Bool {
+        guard discarder == 3 else { return false }
+        guard case .suit(let suit, let rank) = tile else { return false }
+
+        let combos: [[Int]] = [[rank - 2, rank - 1], [rank - 1, rank + 1], [rank + 1, rank + 2]]
+
+        for combo in combos {
+            guard combo[0] >= 1, combo[0] <= 9, combo[1] >= 1, combo[1] <= 9 else { continue }
+            let needed = combo.map { Tile.suit(suit: suit, rank: $0) }
+            let hasFirst = hands[0].contains { TileKey($0) == TileKey(needed[0]) }
+            let hasSecond = hands[0].contains { TileKey($0) == TileKey(needed[1]) }
+            if hasFirst && hasSecond {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    func chowTiles(for tile: Tile) -> [Tile]? {
+        guard case .suit(let suit, let rank) = tile else { return nil }
+
+        let combos: [[Int]] = [[rank - 2, rank - 1], [rank - 1, rank + 1], [rank + 1, rank + 2]]
+
+        for combo in combos {
+            guard combo[0] >= 1, combo[0] <= 9, combo[1] >= 1, combo[1] <= 9 else { continue }
+            let needed = combo.map { Tile.suit(suit: suit, rank: $0) }
+            let hasFirst = hands[0].contains { TileKey($0) == TileKey(needed[0]) }
+            let hasSecond = hands[0].contains { TileKey($0) == TileKey(needed[1]) }
+            if hasFirst && hasSecond {
+                return needed
+            }
+        }
+
+        return nil
     }
 }
