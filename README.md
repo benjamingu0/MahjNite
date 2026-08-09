@@ -4,10 +4,12 @@ I hope to create a free, Hong Kong-style Mahjong app for iOS, programmed using S
 
 Roadmap:\
 [X] Tile data\
-[&ensp;&nbsp;] Tile UI\
+[X] Tile UI\
 [X] Hand display\
 [&ensp;&nbsp;] Game logic\
 &emsp;&emsp;&emsp; Drawing, discarding, and sorting of cards complete ✓\
+&emsp;&emsp;&emsp; Win logic complete ✓\
+&emsp;&emsp;&emsp; Pung & chow ✓\
 [&ensp;&nbsp;] AI opponents\
 [&ensp;&nbsp;] Multiplayer features\
 [&ensp;&nbsp;] Game release!
