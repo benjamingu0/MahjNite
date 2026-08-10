@@ -27,6 +27,10 @@ struct ContentView: View {
         }
         .alert("You Win!", isPresented: $game.showWinAlert) {
             Button("OK", role: .cancel) { }
+        } message: {
+            if let result = game.winResult {
+                Text("\(result.patterns.joined(separator: ", ")) — \(result.totalFan) fan")
+            }
         }
         .alert(
             "Call Pung?",

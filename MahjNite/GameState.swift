@@ -15,6 +15,7 @@ class GameState: ObservableObject {
     @Published var discards: [Tile] = []
     @Published var currentPlayer: Int = 0
     @Published var showWinAlert = false
+    @Published var winResult: ScoredHand? = nil
 
     @Published var pendingPungTile: Tile? = nil
     private var pendingPungDiscarder: Int? = nil
@@ -162,6 +163,7 @@ class GameState: ObservableObject {
                 hands[0].append(wall.removeFirst())
                 hands[0].sort { $0.sortValue < $1.sortValue }
                 if isWinningHand(hands[0]) {
+                    winResult = scoreHand(concealedTiles: hands[0], exposedSets: exposedSets[0])
                     showWinAlert = true
                 }
             }
