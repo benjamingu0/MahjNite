@@ -19,6 +19,9 @@ class GameState: ObservableObject {
     @Published var pendingPungTile: Tile? = nil
     private var pendingPungDiscarder: Int? = nil
     
+    @Published var pendingKongTile: Tile? = nil
+    private var pendingKongDiscarder: Int? = nil
+    
     @Published var pendingChowTile: Tile? = nil
     private var pendingChowDiscarder: Int? = nil
 
@@ -83,6 +86,44 @@ class GameState: ObservableObject {
         advanceTurn()
     }
     
+    func confirmKong() {
+        guard let tile = pendingKongTile, let discarder = pendingKongDiscarder else { return }
+
+        var removed = 0
+        hands[0].removeAll { t in
+            if removed < 3 && TileKey(t) == TileKey(tile) {
+                removed += 1
+                return true
+            }
+            return false
+        }
+
+        if let lastIndex = discards.lastIndex(where: { TileKey($0) == TileKey(tile) }) {
+            discards.remove(at: lastIndex)
+        }
+
+        exposedSets[0].append([tile, tile, tile, tile])
+
+        pendingKongTile = nil
+        pendingKongDiscarder = nil
+
+        if !wall.isEmpty {
+            hands[0].append(wall.removeFirst())
+            hands[0].sort { $0.sortValue < $1.sortValue }
+        }
+
+        currentPlayer = 0
+    }
+
+    func declineKong() {
+        let discarder = pendingKongDiscarder
+        pendingKongTile = nil
+        pendingKongDiscarder = nil
+
+        currentPlayer = discarder ?? currentPlayer
+        advanceTurn()
+    }
+    
     func confirmChow() {
         guard let tile = pendingChowTile, let needed = chowTiles(for: tile) else { return }
 
@@ -138,7 +179,10 @@ class GameState: ObservableObject {
         let tile = hands[currentPlayer].remove(at: discardIndex)
         discards.append(tile)
 
-        if canCallPung(tile: tile, player: 0) {
+        if canCallKong(tile: tile, player: 0) {
+            pendingKongTile = tile
+            pendingKongDiscarder = currentPlayer
+        } else if canCallPung(tile: tile, player: 0) {
             pendingPungTile = tile
             pendingPungDiscarder = currentPlayer
         } else if canCallChow(tile: tile, from: currentPlayer) {
@@ -152,6 +196,11 @@ class GameState: ObservableObject {
     func canCallPung(tile: Tile, player: Int) -> Bool {
         let matchingCount = hands[player].filter { TileKey($0) == TileKey(tile) }.count
         return matchingCount >= 2
+    }
+    
+    func canCallKong(tile: Tile, player: Int) -> Bool {
+        let matchingCount = hands[player].filter { TileKey($0) == TileKey(tile) }.count
+        return matchingCount >= 3
     }
     
     func canCallChow(tile: Tile, from discarder: Int) -> Bool {

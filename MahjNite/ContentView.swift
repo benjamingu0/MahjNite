@@ -43,6 +43,20 @@ struct ContentView: View {
             }
         }
         .alert(
+            "Call Kong?",
+            isPresented: Binding(
+                get: { game.pendingKongTile != nil },
+                set: { if !$0 { game.pendingKongTile = nil } }
+            )
+        ) {
+            Button("Kong!") {
+                game.confirmKong()
+            }
+            Button("Pass", role: .cancel) {
+                game.declineKong()
+            }
+        }
+        .alert(
             "Call Chow?",
             isPresented: Binding(
                 get: { game.pendingChowTile != nil },
