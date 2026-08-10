@@ -9,7 +9,7 @@ Roadmap:\
 [&ensp;&nbsp;] Game logic\
 &emsp;&emsp;&emsp; Drawing, discarding, and sorting of cards complete ✓\
 &emsp;&emsp;&emsp; Win logic complete ✓\
-&emsp;&emsp;&emsp; Pung & chow ✓\
+&emsp;&emsp;&emsp; Pung, chow, and kong ✓\
 [&ensp;&nbsp;] AI opponents\
 [&ensp;&nbsp;] Multiplayer features\
 [&ensp;&nbsp;] Game release!
