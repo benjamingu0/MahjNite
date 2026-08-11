@@ -10,27 +10,47 @@ import SwiftUI
 
 struct TileView: View {
     let tile: Tile
-    
+
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white)
-                .shadow(radius: 3)
-            
-            VStack(spacing: 4) {
-                Text(tileSymbol)
-                    .font(.title2)
-                Text(tileLabel)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-            }
-            
-            .foregroundColor(.black)
-        }
-        
-        .frame(width: 50, height: 70)
+        RoundedRectangle(cornerRadius: 10)
+            .fill(Color.white)
+            .frame(width: 48, height: 68)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(red: 0.91, green: 0.72, blue: 0.29), lineWidth: 1.5)
+            )
+            .overlay(
+                VStack(spacing: 3) {
+                    Text(tileSymbol)
+                        .font(.system(size: 21, weight: .heavy, design: .rounded))
+                        .foregroundColor(symbolColor)
+                    Text(tileLabel)
+                        .font(.system(size: 8, weight: .bold, design: .rounded))
+                        .foregroundColor(Color(red: 0.11, green: 0.16, blue: 0.29))
+                        .textCase(.uppercase)
+                }
+            )
+            .shadow(color: .black.opacity(0.12), radius: 3, x: 0, y: 2)
     }
-    
+
+    var symbolColor: Color {
+        switch tile {
+        case .suit(let suit, _):
+            switch suit {
+            case .characters: return Color(red: 0.11, green: 0.16, blue: 0.29)
+            case .bamboos: return Color(red: 0.24, green: 0.60, blue: 0.44)
+            case .circles: return Color(red: 1.0, green: 0.42, blue: 0.62)
+            }
+        case .honor(let honor):
+            switch honor {
+            case .dragon(.red): return Color(red: 1.0, green: 0.42, blue: 0.62)
+            case .dragon(.green): return Color(red: 0.24, green: 0.60, blue: 0.44)
+            case .dragon(.white): return Color(red: 0.11, green: 0.16, blue: 0.29)
+            case .wind: return Color(red: 0.91, green: 0.72, blue: 0.29)
+            }
+        }
+    }
+
     var tileSymbol: String {
         switch tile {
         case .suit(let suit, let rank):
@@ -57,7 +77,7 @@ struct TileView: View {
             }
         }
     }
-    
+
     var tileLabel: String {
         switch tile {
         case .suit(let suit, let rank):

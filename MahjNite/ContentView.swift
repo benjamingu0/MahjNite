@@ -11,19 +11,35 @@ struct ContentView: View {
     @StateObject private var game = GameState()
 
     var body: some View {
-        VStack {
-            Spacer()
-            DiscardPileView(tiles: game.discards)
-            Spacer()
-            if !game.exposedSets[0].isEmpty {
-                ExposedSetsView(sets: game.exposedSets[0])
+        ZStack {
+            Color(red: 0.99, green: 0.97, blue: 0.94)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                Text(game.currentPlayerName.uppercased())
+                    .font(.system(size: 12, weight: .heavy, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(game.currentPlayer == 0 ? Color(red: 0.24, green: 0.60, blue: 0.44) : Color(red: 0.11, green: 0.16, blue: 0.29))
+                    )
+                Spacer()
+                DiscardPileView(tiles: game.discards)
+                Spacer()
+                if !game.exposedSets[0].isEmpty {
+                    ExposedSetsView(sets: game.exposedSets[0])
+                }
+                Text("YOUR HAND · \(game.wall.count) LEFT")
+                    .font(.system(size: 13, weight: .heavy, design: .rounded))
+                    .foregroundColor(Color(red: 0.11, green: 0.16, blue: 0.29))
+                    .tracking(1)
+                HandView(tiles: game.hands[0], onTileTapped: { index in
+                    game.humanDiscard(at: index)
+                })
+                .padding(.bottom)
             }
-            Text("Your Hand (\(game.wall.count) tiles left in wall)")
-                .font(.headline)
-            HandView(tiles: game.hands[0], onTileTapped: { index in
-                game.humanDiscard(at: index)
-            })
-            .padding(.bottom)
         }
         .alert("You Win!", isPresented: $game.showWinAlert) {
             Button("OK", role: .cancel) { }
@@ -47,20 +63,6 @@ struct ContentView: View {
             }
         }
         .alert(
-            "Call Kong?",
-            isPresented: Binding(
-                get: { game.pendingKongTile != nil },
-                set: { if !$0 { game.pendingKongTile = nil } }
-            )
-        ) {
-            Button("Kong!") {
-                game.confirmKong()
-            }
-            Button("Pass", role: .cancel) {
-                game.declineKong()
-            }
-        }
-        .alert(
             "Call Chow?",
             isPresented: Binding(
                 get: { game.pendingChowTile != nil },
@@ -72,6 +74,20 @@ struct ContentView: View {
             }
             Button("Pass", role: .cancel) {
                 game.declineChow()
+            }
+        }
+        .alert(
+            "Call Kong?",
+            isPresented: Binding(
+                get: { game.pendingKongTile != nil },
+                set: { if !$0 { game.pendingKongTile = nil } }
+            )
+        ) {
+            Button("Kong!") {
+                game.confirmKong()
+            }
+            Button("Pass", role: .cancel) {
+                game.declineKong()
             }
         }
     }

@@ -25,6 +25,16 @@ class GameState: ObservableObject {
     
     @Published var pendingChowTile: Tile? = nil
     private var pendingChowDiscarder: Int? = nil
+    
+    var currentPlayerName: String {
+        switch currentPlayer {
+        case 0: return "Your Turn"
+        case 1: return "Bot 1's Turn"
+        case 2: return "Bot 2's Turn"
+        case 3: return "Bot 3's Turn"
+        default: return ""
+        }
+    }
 
     init() {
         let fullWall = generateWall()

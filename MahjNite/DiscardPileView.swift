@@ -13,8 +13,10 @@ struct DiscardPileView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Discards")
-                .font(.headline)
+            Text("DISCARDS")
+                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                .foregroundColor(Color(red: 0.11, green: 0.16, blue: 0.29))
+                .tracking(1)
                 .padding(.horizontal)
             
             LazyVGrid(columns: Array(repeating: GridItem(.fixed(54)), count: 6), spacing: 8) {
