@@ -42,7 +42,9 @@ struct ContentView: View {
             }
         }
         .alert("You Win!", isPresented: $game.showWinAlert) {
-            Button("OK", role: .cancel) { }
+            Button("New Game") {
+                game.newGame()
+            }
         } message: {
             if let result = game.winResult {
                 Text("\(result.patterns.joined(separator: ", ")) — \(result.totalFan) fan")
@@ -88,6 +90,11 @@ struct ContentView: View {
             }
             Button("Pass", role: .cancel) {
                 game.declineKong()
+            }
+        }
+        .alert("It's a Draw", isPresented: $game.isDraw) {
+            Button("New Game") {
+                game.newGame()
             }
         }
     }

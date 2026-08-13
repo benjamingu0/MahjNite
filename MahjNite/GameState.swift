@@ -16,6 +16,7 @@ class GameState: ObservableObject {
     @Published var currentPlayer: Int = 0
     @Published var showWinAlert = false
     @Published var winResult: ScoredHand? = nil
+    @Published var isDraw: Bool = false
 
     @Published var pendingPungTile: Tile? = nil
     private var pendingPungDiscarder: Int? = nil
@@ -169,13 +170,15 @@ class GameState: ObservableObject {
         currentPlayer = (currentPlayer + 1) % 4
 
         if currentPlayer == 0 {
-            if !wall.isEmpty {
-                hands[0].append(wall.removeFirst())
-                hands[0].sort { $0.sortValue < $1.sortValue }
-                if isWinningHand(hands[0]) {
-                    winResult = scoreHand(concealedTiles: hands[0], exposedSets: exposedSets[0])
-                    showWinAlert = true
-                }
+            if wall.isEmpty {
+                isDraw = true
+                return
+            }
+            hands[0].append(wall.removeFirst())
+            hands[0].sort { $0.sortValue < $1.sortValue }
+            if isWinningHand(hands[0]) {
+                winResult = scoreHand(concealedTiles: hands[0], exposedSets: exposedSets[0])
+                showWinAlert = true
             }
         } else {
             botPlay()
@@ -183,7 +186,10 @@ class GameState: ObservableObject {
     }
 
     private func botPlay() {
-        guard !wall.isEmpty else { return }
+        guard !wall.isEmpty else {
+            isDraw = true
+            return
+        }
 
         hands[currentPlayer].append(wall.removeFirst())
 
@@ -250,5 +256,27 @@ class GameState: ObservableObject {
         }
 
         return nil
+    }
+    
+    func newGame() {
+        let fullWall = generateWall()
+        var remaining = fullWall
+
+        for i in 0..<4 {
+            let dealt = Array(remaining.prefix(13))
+            hands[i] = dealt.sorted { $0.sortValue < $1.sortValue }
+            remaining.removeFirst(13)
+        }
+
+        wall = remaining
+        discards = []
+        exposedSets = [[], [], [], []]
+        currentPlayer = 0
+        showWinAlert = false
+        isDraw = false
+        winResult = nil
+        pendingPungTile = nil
+        pendingChowTile = nil
+        pendingKongTile = nil
     }
 }
