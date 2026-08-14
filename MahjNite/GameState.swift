@@ -181,7 +181,9 @@ class GameState: ObservableObject {
                 showWinAlert = true
             }
         } else {
-            botPlay()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.botPlay()
+            }
         }
     }
 
